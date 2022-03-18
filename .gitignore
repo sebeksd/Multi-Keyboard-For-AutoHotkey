@@ -1,0 +1,17 @@
+*.dcu
+*.log
+*.dll
+*.exe
+*.rsm
+*.identcache
+*.local
+*.tvsconfig
+src/__history/
+src/WinHook/__history/
+src/common/__history/
+src/to_remove/
+
+
+__history/
+*.ini
+*.tmp

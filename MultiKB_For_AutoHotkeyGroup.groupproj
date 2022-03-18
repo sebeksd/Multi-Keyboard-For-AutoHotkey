@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{0BB0C713-11F3-4A54-9C1B-A8C7FAFDC92E}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="MultiKB_For_AutoHotkey.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="src\WinHook\WinHook.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="MultiKB_For_AutoHotkey">
+        <MSBuild Projects="MultiKB_For_AutoHotkey.dproj"/>
+    </Target>
+    <Target Name="MultiKB_For_AutoHotkey:Clean">
+        <MSBuild Projects="MultiKB_For_AutoHotkey.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MultiKB_For_AutoHotkey:Make">
+        <MSBuild Projects="MultiKB_For_AutoHotkey.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="WinHook">
+        <MSBuild Projects="src\WinHook\WinHook.dproj"/>
+    </Target>
+    <Target Name="WinHook:Clean">
+        <MSBuild Projects="src\WinHook\WinHook.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="WinHook:Make">
+        <MSBuild Projects="src\WinHook\WinHook.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="MultiKB_For_AutoHotkey;WinHook"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="MultiKB_For_AutoHotkey:Clean;WinHook:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="MultiKB_For_AutoHotkey:Make;WinHook:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
