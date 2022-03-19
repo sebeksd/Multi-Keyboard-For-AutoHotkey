@@ -7,12 +7,16 @@ interface
 uses
   System.SyncObjs, Devices, System.IniFiles;
 
-  // TODO single Path constant
+const
+  gcConfigurationDir = 'MultiKeyboardForAutoHotkey\';
+  gcConfigurationPath = gcConfigurationDir + 'Configuration.ini';
 
 type
   TConfiguration = class
     strict private
       fLock: TCriticalSection;
+      fConfigurationDirPath: string;
+      fConfigurationFullPath: string;
 
       // internal use only, not in file
       fIsChanged: Boolean;
@@ -45,7 +49,17 @@ var
 implementation
 
 uses
-  System.SysUtils, Winapi.Windows;
+  System.SysUtils, Winapi.Windows, SHFolder, Vcl.Dialogs;
+
+function GetAppDataLocalPath: string;
+var
+  Path: array[0..MAX_PATH] of Char;
+begin
+  if SHGetFolderPath(0, CSIDL_LOCAL_APPDATA, 0, SHGFP_TYPE_CURRENT, Path) = S_OK then
+    Result := IncludeTrailingPathDelimiter(Path)
+  else
+    Result := '';
+end;
 
 { TConfiguration }
 
@@ -70,13 +84,17 @@ begin
   fLock := TCriticalSection.Create;
   fConfiguredDeviceList := TDeviceList.Create(TDeviceComparer.Create);
 
-  if not Load(IncludeTrailingPathDelimiter(GetCurrentDir()) + 'Configuration.ini') then //TODO
+  // get AppData\Local\ + own dir patch
+  fConfigurationDirPath := GetAppDataLocalPath();
+  fConfigurationFullPath := fConfigurationDirPath + gcConfigurationPath;
+
+  if not Load(fConfigurationFullPath) then
     SetDefaults();
 end;
 
 destructor TConfiguration.Destroy;
 begin
-  Save(IncludeTrailingPathDelimiter(GetCurrentDir()) + 'Configuration.ini'); //TODO
+  Save(fConfigurationFullPath);
   FreeAndNil(fConfiguredDeviceList);
   FreeAndNil(fLock);
 
@@ -152,6 +170,7 @@ end;
 function TConfiguration.Save(const lPath: string): Boolean;
 var
   lInitFile: TIniFile;
+  lDir: string;
 
   x: Integer;
   lSectionName: string;
@@ -159,7 +178,11 @@ begin
   // writing is done to temp file for two reasons
   // 1. it safer, during power loss (or something similar) file could get demeged during write, it is less likley to be demaged during rename
   // 2. we want to do cleanup remove old devices that have no user info or other values that are not used anymore (not loading old file)
-  System.SysUtils.DeleteFile(lPath + '.tmp'); // if temp file already exists, remove it
+  lDir := ExtractFileDir(lPath);
+  if not DirectoryExists(lDir) then
+    ForceDirectories(lDir)
+  else
+    System.SysUtils.DeleteFile(lPath + '.tmp'); // if temp file already exists, remove it
 
   try
     lInitFile := TIniFile.Create(lPath + '.tmp');
@@ -179,13 +202,15 @@ begin
         lInitFile.WriteInteger(lSectionName, 'Number', fConfiguredDeviceList[x].Number);
         lInitFile.WriteString(lSectionName, 'SystemId', fConfiguredDeviceList[x].SystemId);
       end;
+      lInitFile.UpdateFile;
     finally
       fLock.Leave;
       lInitFile.Free;
     end;
 
     // Delete old config file and replace it with new one
-    Result := System.SysUtils.DeleteFile(lPath) and System.SysUtils.RenameFile(lPath + '.tmp', lPath);
+    System.SysUtils.DeleteFile(lPath);
+    Result := System.SysUtils.RenameFile(lPath + '.tmp', lPath);
   except
     Result := False;
   end;
@@ -215,7 +240,7 @@ begin
     end;
 
     if lSave then
-      Save(IncludeTrailingPathDelimiter(GetCurrentDir()) + 'Configuration.ini');
+      Save(fConfigurationFullPath);
   finally
     fLock.Leave;
   end;

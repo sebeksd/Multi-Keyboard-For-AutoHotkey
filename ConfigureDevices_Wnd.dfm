@@ -61,6 +61,7 @@ object FormConfigureDevices: TFormConfigureDevices
         AutoSize = True
         Caption = 'System Id'
       end>
+    HideSelection = False
     OwnerData = True
     ReadOnly = True
     RowSelect = True
@@ -86,6 +87,7 @@ object FormConfigureDevices: TFormConfigureDevices
         AutoSize = True
         Caption = 'System Id'
       end>
+    HideSelection = False
     OwnerData = True
     ReadOnly = True
     RowSelect = True
