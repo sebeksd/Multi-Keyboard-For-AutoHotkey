@@ -9,7 +9,7 @@ uses
 
 const
   WM_HOOK_LIB_EVENT = WM_USER + 300;
-  HOOK_MEMORY_NAME = 'LuaMacrosSharedMem';
+  HOOK_MEMORY_NAME = 'MKFAH_SharedMem';
 
 type
   PMMFData = ^TMMFData;
