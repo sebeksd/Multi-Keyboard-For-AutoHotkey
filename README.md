@@ -17,14 +17,20 @@ AutoHotkey is powerfull macro application but unfortunatly if you have multiply 
 If you like this app go to **"Donation"** section :)
 
 ## Instruction ##
-TODO
+
+#### Installation ####
+You can run this app from portable version, just decopress exe and dll files anywhere or you can install using installer.
+To make it working you can run this app manually, add it to autostart or add start script to AutoHotkey script (see example script for that).
+After launching app will show in Windows tray, from there you can open configuration windowd (right click), in configuration window in top part you will see keybords that where connected after opening this window (disconnect and connect it again if it was already connected). Choose discovered device than provide name for it (name is only for user) and number/id (this will be used in AutoHotkey), press add, from now on this device will send all keystrokes to AutoHotkey.
+Using example script "AutoHotkey_example.ahk" create your own script.
 
 #### Settings location ####
-TODO
+Settings file is located in local user appdata folder:
+"C:\Users\[User]\AppData\Local\MultiKeyboardForAutoHotkey\Configuration.ini"
 
 ## Issues and Features requests ##
 
-You can report an issue or make feature request throug Issues tab on Github
+You can report an issue or make feature request through Issues tab on Github
 
 ## Contribution guidelines ##
 
