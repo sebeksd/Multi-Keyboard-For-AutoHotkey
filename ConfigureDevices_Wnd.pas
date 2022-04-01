@@ -31,10 +31,16 @@ type
     procedure ButtonAddClick(Sender: TObject);
     procedure ListViewConfiguredDevicesData(Sender: TObject; Item: TListItem);
     procedure ButtonRemoveClick(Sender: TObject);
+    procedure ListViewConfiguredDevicesSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+    procedure ListViewNewDevicesSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+    procedure EditNameChange(Sender: TObject);
   private
     { Private declarations }
-    fDeviceList: TDeviceList;
+    fAllDeviceList: TDeviceList;
+    fConfiguredDeviceList: TDeviceList;
     fNewDeviceList: TDeviceList;
+
+    procedure RefreshButtons();
   public
     { Public declarations }
     procedure RefreshDevices();
@@ -54,23 +60,43 @@ procedure TFormConfigureDevices.ButtonAddClick(Sender: TObject);
 var
   lDevice: TDevice;
 begin
-  if InRange(ListViewNewDevices.ItemIndex, 0, fNewDeviceList.Count - 1) then
+  if (ListViewConfiguredDevices.SelCount > 0) then
   begin
-    lDevice := fNewDeviceList[ListViewNewDevices.ItemIndex].Clone;
-
-    lDevice.Enabled := True;
-    lDevice.Name := EditName.Text;
-    lDevice.Number := SpinEditNumber.Value;
-
-    if fDeviceList.IndexOf(lDevice) = -1 then
+    // EDIT
+    if InRange(ListViewConfiguredDevices.ItemIndex, 0, ListViewConfiguredDevices.Items.Count - 1) then
     begin
-      fDeviceList.Add(lDevice);
+      lDevice := fConfiguredDeviceList[ListViewConfiguredDevices.ItemIndex];
 
-      // update configuration
-      gConfiguration.UpdateDeviceList(fDeviceList, True);
+      lDevice.Enabled := True;
+      lDevice.Name := EditName.Text;
+      lDevice.Number := SpinEditNumber.Value;
+
+      gConfiguration.UpdateDeviceList(fConfiguredDeviceList, True);
+
+      RefreshDevices();
     end;
+  end
+  else
+  begin
+    // ADD
+    if InRange(ListViewNewDevices.ItemIndex, 0, fNewDeviceList.Count - 1) then
+    begin
+      lDevice := fNewDeviceList[ListViewNewDevices.ItemIndex].Clone;
 
-    RefreshDevices();
+      lDevice.Enabled := True;
+      lDevice.Name := EditName.Text;
+      lDevice.Number := SpinEditNumber.Value;
+
+      if fConfiguredDeviceList.IndexOf(lDevice) = -1 then
+      begin
+        fConfiguredDeviceList.Add(lDevice);
+
+        // update configuration
+        gConfiguration.UpdateDeviceList(fConfiguredDeviceList, True);
+      end;
+
+      RefreshDevices();
+    end;
   end;
 end;
 
@@ -78,36 +104,44 @@ procedure TFormConfigureDevices.ButtonRemoveClick(Sender: TObject);
 var
   lDevice: TDevice;
 begin
-  if InRange(ListViewConfiguredDevices.ItemIndex, 0, fDeviceList.Count - 1) then
+  if InRange(ListViewConfiguredDevices.ItemIndex, 0, fConfiguredDeviceList.Count - 1) then
   begin
-    lDevice := fDeviceList[ListViewConfiguredDevices.ItemIndex];
+    lDevice := fConfiguredDeviceList[ListViewConfiguredDevices.ItemIndex];
 
     lDevice.Enabled := False;
     lDevice.Name := '';
     lDevice.Number := 0;
 
     // update configuration
-    gConfiguration.UpdateDeviceList(fDeviceList, True);
+    gConfiguration.UpdateDeviceList(fConfiguredDeviceList, True);
 
     RefreshDevices();
   end;
 end;
 
+procedure TFormConfigureDevices.EditNameChange(Sender: TObject);
+begin
+  RefreshButtons();
+end;
+
 procedure TFormConfigureDevices.FormCreate(Sender: TObject);
 begin
-  fDeviceList := TDeviceList.Create(TDeviceComparer.Create);
+  fAllDeviceList := TDeviceList.Create(TDeviceComparer.Create);
+  fConfiguredDeviceList := TDeviceList.Create(TDeviceComparer.Create);
   fNewDeviceList := TDeviceList.Create(TDeviceComparer.Create);
-  DetectAllDevices(fDeviceList);
+  DetectAllDevices(fAllDeviceList);
 
-  gConfiguration.FillDevicesFromConfiguration(fDeviceList);
+  gConfiguration.CopyEnabledUserDevices(fConfiguredDeviceList);
 
   RefreshDevices();
+  RefreshButtons();
 end;
 
 procedure TFormConfigureDevices.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(fNewDeviceList);
-  FreeAndNil(fDeviceList);
+  FreeAndNil(fConfiguredDeviceList);
+  FreeAndNil(fAllDeviceList);
 end;
 
 procedure TFormConfigureDevices.FormHide(Sender: TObject);
@@ -122,25 +156,65 @@ end;
 
 procedure TFormConfigureDevices.ListViewConfiguredDevicesData(Sender: TObject; Item: TListItem);
 begin
-  if InRange(Item.Index, 0, fDeviceList.Count - 1) then
+  if Assigned(Item) and InRange(Item.Index, 0, fConfiguredDeviceList.Count - 1) then
   begin
-    Item.Caption := fDeviceList[Item.Index].Name;
-    Item.SubItems.Add(IntToStr(fDeviceList[Item.Index].Number));
-    Item.SubItems.Add(fDeviceList[Item.Index].SystemId);
+    Item.Caption := fConfiguredDeviceList[Item.Index].Name;
+    Item.SubItems.Add(IntToStr(fConfiguredDeviceList[Item.Index].Number));
+    Item.SubItems.Add(fConfiguredDeviceList[Item.Index].SystemId);
+  end;
+end;
+
+procedure TFormConfigureDevices.ListViewConfiguredDevicesSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+begin
+  if Selected then
+  begin
+    ListViewNewDevices.ClearSelection;
+    if Assigned(Item) and InRange(Item.Index, 0, fConfiguredDeviceList.Count - 1) then
+    begin
+      EditName.Text := fConfiguredDeviceList[Item.Index].Name;
+      SpinEditNumber.Value := fConfiguredDeviceList[Item.Index].Number;
+    end;
+    RefreshButtons();
   end;
 end;
 
 procedure TFormConfigureDevices.ListViewNewDevicesData(Sender: TObject; Item: TListItem);
 begin
-  if InRange(Item.Index, 0, fNewDeviceList.Count - 1) then
+  if Assigned(Item) and InRange(Item.Index, 0, fNewDeviceList.Count - 1) then
   begin
     Item.Caption := fNewDeviceList[Item.Index].SystemId;
   end;
 end;
 
+procedure TFormConfigureDevices.ListViewNewDevicesSelectItem(Sender: TObject; Item: TListItem; Selected: Boolean);
+begin
+  if Selected then
+  begin
+    ListViewConfiguredDevices.ClearSelection;
+    EditName.Text := '';
+
+    RefreshButtons();
+  end;
+end;
+
+procedure TFormConfigureDevices.RefreshButtons;
+begin
+  ButtonAdd.Enabled := ((ListViewNewDevices.SelCount > 0) or (ListViewConfiguredDevices.SelCount > 0)) and (EditName.Text <> '');
+  ButtonRemove.Enabled := (ListViewConfiguredDevices.SelCount > 0);
+
+  if (ListViewNewDevices.SelCount > 0) then
+  begin
+    ButtonAdd.Caption := 'Add';
+  end
+  else if (ListViewConfiguredDevices.SelCount > 0) then
+  begin
+    ButtonAdd.Caption := 'Edit';
+  end;
+end;
+
 procedure TFormConfigureDevices.RefreshDevices;
 begin
-  ListViewConfiguredDevices.Items.Count := fDeviceList.Count;
+  ListViewConfiguredDevices.Items.Count := fConfiguredDeviceList.Count;
   ListViewConfiguredDevices.Refresh;
 end;
 
@@ -152,13 +226,13 @@ begin
   // detect disconnections, update global list on disconnect
   lTempDeviceList := TDeviceList.Create();
   try
-    if DetectAllDevices(lTempDeviceList) < fDeviceList.Count then
+    if DetectAllDevices(lTempDeviceList) < fAllDeviceList.Count then
     begin
       lTempDeviceList.OwnsObjects := False;
-      fDeviceList.Clear;
+      fAllDeviceList.Clear;
 
       for lDevice in lTempDeviceList do
-        fDeviceList.Add(lDevice);
+        fAllDeviceList.Add(lDevice);
     end;
   finally
     lTempDeviceList.Free;
@@ -167,13 +241,16 @@ begin
   // add devices that are not on main list to new list
   lTempDeviceList := TDeviceList.Create();
   try
-    if DetectNewDevices(fDeviceList, lTempDeviceList) <> fNewDeviceList.Count then
+    if DetectNewDevices(fAllDeviceList, lTempDeviceList) <> fNewDeviceList.Count then
     begin
       lTempDeviceList.OwnsObjects := False;
       fNewDeviceList.Clear;
 
       for lDevice in lTempDeviceList do
-        fNewDeviceList.Add(lDevice);
+      begin
+        if fConfiguredDeviceList.IndexOf(lDevice) = -1 then
+          fNewDeviceList.Add(lDevice);
+      end;
 
       ListViewNewDevices.Items.Count := fNewDeviceList.Count;
       ListViewNewDevices.Refresh;

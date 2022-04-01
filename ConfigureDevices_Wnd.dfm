@@ -23,11 +23,11 @@ object FormConfigureDevices: TFormConfigureDevices
   object LabelNewDevices: TLabel
     Left = 8
     Top = 8
-    Width = 328
+    Width = 357
     Height = 13
     Caption = 
-      'Recently connected devices (disconnect and connect to show here)' +
-      ':'
+      'Recently connected devices (disconnect and connect again to show' +
+      ' here):'
   end
   object LabelConfiguredDevices: TLabel
     Left = 8
@@ -52,7 +52,7 @@ object FormConfigureDevices: TFormConfigureDevices
   end
   object ListViewNewDevices: TListView
     Left = 8
-    Top = 24
+    Top = 27
     Width = 739
     Height = 161
     Anchors = [akLeft, akTop, akRight]
@@ -68,6 +68,7 @@ object FormConfigureDevices: TFormConfigureDevices
     TabOrder = 0
     ViewStyle = vsReport
     OnData = ListViewNewDevicesData
+    OnSelectItem = ListViewNewDevicesSelectItem
   end
   object ListViewConfiguredDevices: TListView
     Left = 8
@@ -94,6 +95,7 @@ object FormConfigureDevices: TFormConfigureDevices
     TabOrder = 1
     ViewStyle = vsReport
     OnData = ListViewConfiguredDevicesData
+    OnSelectItem = ListViewConfiguredDevicesSelectItem
   end
   object EditName: TEdit
     Left = 8
@@ -101,6 +103,7 @@ object FormConfigureDevices: TFormConfigureDevices
     Width = 121
     Height = 21
     TabOrder = 2
+    OnChange = EditNameChange
   end
   object SpinEditNumber: TSpinEdit
     Left = 135
@@ -117,7 +120,7 @@ object FormConfigureDevices: TFormConfigureDevices
     Top = 224
     Width = 75
     Height = 25
-    Caption = '\/'
+    Caption = 'Add/Edit'
     TabOrder = 4
     OnClick = ButtonAddClick
   end
