@@ -28,6 +28,14 @@ Using example script "AutoHotkey_example.ahk" create your own script.
 Settings file is located in local user appdata folder:
 "C:\Users\[User]\AppData\Local\MultiKeyboardForAutoHotkey\Configuration.ini"
 
+## Building from source ##
+
+To build this app you need Delphi IDE, it should work on most of Delphi versions (XE+), it doesn't require any external components or tools. I'm using Delphi 10.4 community edition (which is free).
+Additionally, installer is made using NSIS (Nullsoft Scriptable Install System Files) os to make installer package you need to have NSIS tool.
+Scripts:
+- NSIS_Installer.nsi - used to create installer
+- PreparePackage.bat - script to copy required files for installer and also create Portable archive (you need to build before using this script)
+
 ## Issues and Features requests ##
 
 You can report an issue or make feature request through Issues tab on Github
