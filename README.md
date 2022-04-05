@@ -28,6 +28,11 @@ Using example script "AutoHotkey_example.ahk" create your own script.
 Settings file is located in local user appdata folder:
 "C:\Users\[User]\AppData\Local\MultiKeyboardForAutoHotkey\Configuration.ini"
 
+#### Key codes ####
+Key codes can be found in https://github.com/sebeksd/Multi-Keyboard-For-AutoHotkey/blob/main/src/VK_Codes.pas
+or by "logging" key presses in AutoHotkey like this:
+MsgBox % "Keyboard: " . KeyboardNumber . " Key: " . VKeyCode
+
 ## Building from source ##
 
 To build this app you need Delphi IDE, it should work on most of Delphi versions (XE+), it doesn't require any external components or tools. I'm using Delphi 10.4 community edition (which is free).
