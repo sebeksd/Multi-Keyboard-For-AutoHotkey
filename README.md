@@ -31,6 +31,7 @@ Settings file is located in local user appdata folder:
 #### Key codes ####
 Key codes can be found in https://github.com/sebeksd/Multi-Keyboard-For-AutoHotkey/blob/main/src/VK_Codes.pas
 or by "logging" key presses in AutoHotkey like this:
+
 MsgBox % "Keyboard: " . KeyboardNumber . " Key: " . VKeyCode
 
 ## Building from source ##
