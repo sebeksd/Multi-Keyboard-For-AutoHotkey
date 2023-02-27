@@ -31,7 +31,7 @@ const
     {  6} (VK_Name: 'VK_XBUTTON2'; VK_Description: 'X2 mouse button'),
     {  7} (VK_Name: ''; VK_Description: 'Undefined'),
     {  8} (VK_Name: 'VK_BACK'; VK_Description: 'BACKSPACE key'),
-    {  9}  (VK_Name: 'VK_TAB'; VK_Description: 'TAB key'),
+    {  9} (VK_Name: 'VK_TAB'; VK_Description: 'TAB key'),
     { 10} (VK_Name: ''; VK_Description: 'Reserved'),
     { 11} (VK_Name: ''; VK_Description: ''),
     { 12} (VK_Name: 'VK_CLEAR'; VK_Description: 'CLEAR key'),

@@ -18,9 +18,43 @@ MsgFunc(wParam, lParam, msg, hwnd)
   OnUniqueKeyboard(wParam, lParam & 0xFF, (lParam & 0x100) > 0, (lParam & 0x200) > 0, (lParam & 0x400) > 0, (lParam & 0x800) > 0, (lParam & 0x1000) > 0, (lParam & 0x2000) > 0, (lParam & 0x4000) > 0, (lParam & 0x8000) > 0)  	
 }
 
+; do not modify
+byte2hex(int)
+{
+	; based on https://www.autohotkey.com/boards/viewtopic.php?t=3925
+	; used when doing "passthroug"
+	HEX_BYTE := 2
+	while (HEX_BYTE--)
+	{
+			n := (int >> (HEX_BYTE * 4)) & 0xf
+			h .= n > 9 ? chr(0x37 + n) : n
+			if (HEX_BYTE == 0 && HEX_BYTE//2 == 0)
+					h .= " "
+	}
+	return h
+}
+
+; do not modify
+DoPassThrough(KeyboardNumber, VKeyCode, IsDown, WasDown, IsExtended, LeftCtrl, RightCtrl, LeftAlt, RightAlt, Shift)
+{
+	VKeyCodeHex := byte2hex(VKeyCode)
+	PassThroughKey := "{vk" . VKeyCodeHex . "}"
+
+	if (LeftCtrl || RightCtrl)
+		PassThroughKey := "^" . PassThroughKey
+
+	if (LeftAlt || RightAlt)
+		PassThroughKey := "!" . PassThroughKey
+
+	if (Shift)
+		PassThroughKey := "+" . PassThroughKey
+
+	Send %PassThroughKey%
+}
+
 ; KeyboardNumber - configured by you in MultiKB_For_AutoHotkey, this identify keyboard device
 ; VKeyCode - Key Code, https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes 
-; IsDown - is key pressed or released
+; IsDown - is key pressed or released, use "if (!IsDown)" if you like to register only key up, without this your code will be executed twice on key down and key up
 ; WasDown - like IsDown but this is previous state of this key
 ; IsExtended - is it normal or extended key (multimedia key, right alt/ctrl etc.)
 ; LeftCtrl, RightCtrl, LeftAlt, RightAlt, Shift (any) - is corresponding "control key" pressed at the same time
@@ -32,8 +66,12 @@ OnUniqueKeyboard(KeyboardNumber, VKeyCode, IsDown, WasDown, IsExtended, LeftCtrl
 	; example, remove, keyboard 1 - "G" + RightCtrl + LeftAlt + Shift
 	if (KeyboardNumber = 1 and VKeyCode = 71 and RightCtrl and LeftAlt and Shift)
 		MsgBox "Test message"
+	; if you want to pass all other keys as normal then add code like below 
+	else if (!IsDown)
+	{
+		DoPassThrough(KeyboardNumber, VKeyCode, IsDown, WasDown, IsExtended, LeftCtrl, RightCtrl, LeftAlt, RightAlt, Shift)
+	}
 
 	; ---> Add your code below <---
-
 
 }
