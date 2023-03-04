@@ -277,7 +277,9 @@ var
   lKS: TKeyStroke;
   lDoBlock: Boolean;
 begin
-   // hook message has no device ID so we need RawInput for that
+  lDoBlock := False;
+
+  // hook message has no device ID so we need RawInput for that
   fLock.Enter;
   try
     lKS := ConvertHookMessageToKeyStroke(Message.WParam, Message.LParam);
@@ -288,19 +290,18 @@ begin
 
       if Assigned(lKS.Device) then
       begin
-        // uopdate current state of special control keys for this device
+        // update current state of special control keys for this device
         UpdateControlKeyStateForDevice(lKS.Device, lKS);
 
-        // send keystroke to AutoHotkey
-        KeyStrokeToAutoHotkey(lKS);
+        if lKS.IsOnCatchList() then
+        begin
+          // send keystroke to AutoHotkey
+          KeyStrokeToAutoHotkey(lKS);
 
-        lDoBlock := True;
-      end
-      else
-        lDoBlock := False;
-    end
-    else
-      lDoBlock := False;
+          lDoBlock := True;
+        end;
+      end;
+    end;
   finally
     fLock.Leave;
   end;

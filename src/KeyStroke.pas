@@ -21,6 +21,7 @@ type
     IsExtendedKey: Boolean;
 
     function IsEqual(const lKeyStroke: TKeyStroke): Boolean;
+    function IsOnCatchList(): Boolean;
   end;
 
   TKeyLogItem = record
@@ -70,6 +71,14 @@ end;
 function TKeyStroke.IsEqual(const lKeyStroke: TKeyStroke): Boolean;
 begin
   Result := (VKeyCode = lKeyStroke.VKeyCode) and (Direction = lKeyStroke.Direction);
+end;
+
+function TKeyStroke.IsOnCatchList: Boolean;
+begin
+  if not Assigned(Device) then
+    Exit(False);
+
+  Result := Device.CatchAll or Device.IsVKCodeOnCatchList(VKeyCode);
 end;
 
 end.

@@ -12,9 +12,14 @@ type
 
   TDevice = class(TPersistent)
     private
-      fEnabled: Boolean; // user provided information
-      fName: string; // user provided information
-      fNumber: Integer; // user provided information
+      // user provided information
+      fEnabled: Boolean;
+      fName: string;
+      fNumber: Integer;
+
+      fCatchAll: Boolean;
+      fCatchList: TList<Integer>;
+      // end user provided information
 
       fSystemId: string; // unique for device and port
       fHandle: THandle; // unique "at this moment"
@@ -28,7 +33,8 @@ type
         Shift: TKeyDirection;
       end;
 
-      constructor Create;
+      constructor Create; reintroduce;
+      destructor Destroy; override;
 
       function Clone: TDevice;
       procedure Assign(Source: TPersistent); override;
@@ -38,10 +44,14 @@ type
       function IsDeviceConfigured: Boolean;
       function IsDeviceEnabled: Boolean;
       function IsValid: Boolean;
+      function IsVKCodeOnCatchList(const lVKCode: Byte): Boolean;
 
       property Enabled: Boolean read fEnabled write fEnabled;
       property Name: string read fName write fName;
       property Number: Integer read fNumber write fNumber;
+
+      property CatchAll: Boolean read fCatchAll write fCatchAll;
+      property CatchList: TList<Integer> read fCatchList;
 
       property SystemId: string read fSystemId write fSystemId;
       property Handle: THandle read fHandle write fHandle;
@@ -223,6 +233,11 @@ begin
     fEnabled := lDevice.Enabled;
     fName := lDevice.Name;
     fNumber := lDevice.Number;
+
+    fCatchAll := lDevice.fCatchAll;
+    for var x: Integer := 0 to lDevice.fCatchList.Count - 1 do
+      fCatchList.Add(lDevice.fCatchList[x]);
+
     fSystemId := lDevice.SystemId;
     fHandle := lDevice.Handle;
   end
@@ -238,6 +253,11 @@ end;
 
 constructor TDevice.Create;
 begin
+  inherited;
+
+  fCatchAll := True;
+  fCatchList := TList<Integer>.Create();
+
   State.LeftAlt := kdUp;
   State.RightAlt := kdUp;
   State.LeftCtrl := kdUp;
@@ -245,6 +265,12 @@ begin
   State.Shift:= kdUp;
 
   fHandle := INVALID_HANDLE_VALUE;
+end;
+
+destructor TDevice.Destroy;
+begin
+  FreeAndNil(fCatchList);
+  inherited;
 end;
 
 procedure TDevice.FillUserData(const lDevice: TDevice);
@@ -268,6 +294,17 @@ end;
 function TDevice.IsValid: Boolean;
 begin
   Result := IsDeviceConfigured() and (SystemId <> '');
+end;
+
+function TDevice.IsVKCodeOnCatchList(const lVKCode: Byte): Boolean;
+begin
+  for var x: Integer := 0 to fCatchList.Count - 1 do
+  begin
+    if lVKCode = fCatchList[x] then
+      Exit(True);
+  end;
+
+  Result := False;
 end;
 
 end.

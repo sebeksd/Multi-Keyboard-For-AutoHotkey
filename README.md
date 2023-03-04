@@ -35,6 +35,15 @@ or by "logging" key presses in AutoHotkey like this:
 
 MsgBox % "Keyboard: " . KeyboardNumber . " Key: " . VKeyCode
 
+#### Additional options (availaible only in Configuration.ini) ####
+Options will be added to Configuration file on Application close (when updating from older version run this app and close it). 
+CatchAll - default 1, Catch all keys on selected Keyboard without passing them to OS
+CatchVKCodes - default [empty], list of VKCodes to Catch (only if CatchAll=0), only thoes Keys will be Catched and passed to AutoHotkey, those Keys will not go to OS, list should be splited using coma, correct Codes are availaible in link in section above
+
+Example (Catch only Numpad 0-9):
+CatchAll=0
+CatchVKCodes=96,97,98,99,100,101,102,103,104,105
+
 ## Building from source ##
 
 To build this app you need Delphi IDE, it should work on most of Delphi versions (XE+), it doesn't require any external components or tools. I'm using Delphi 10.4 community edition (which is free).

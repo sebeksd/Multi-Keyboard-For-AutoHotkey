@@ -5,7 +5,7 @@ unit Configuration;
 interface
 
 uses
-  System.SyncObjs, Devices, System.IniFiles;
+  System.SyncObjs, Devices, System.IniFiles, System.Generics.Collections;
 
 const
   gcConfigurationDir = 'MultiKeyboardForAutoHotkey\';
@@ -28,6 +28,9 @@ type
       procedure SetDefaults;
       function GetIsChanged: Boolean;
 
+      procedure VKCodesStringListToList(const pList: TList<Integer>; const lVKCodesStr: string);
+      function ListToVKCodesStringList(const lList: TList<Integer>): string;
+
     protected // unsafe, require Lock
       function Load(const lPath: string): Boolean;
       function Save(const lPath: string): Boolean;
@@ -49,7 +52,7 @@ var
 implementation
 
 uses
-  System.SysUtils, Winapi.Windows, SHFolder, Vcl.Dialogs;
+  System.SysUtils, Winapi.Windows, SHFolder, Vcl.Dialogs, Classes;
 
 function GetAppDataLocalPath: string;
 var
@@ -121,6 +124,18 @@ begin
   end;
 end;
 
+function TConfiguration.ListToVKCodesStringList(const lList: TList<Integer>): string;
+begin
+  Result := '';
+  for var x: Integer := 0 to lList.Count - 1 do
+  begin
+    if x > 0 then
+      Result := Result + ',';
+
+    Result := Result + IntToStr(lList[x]);
+  end;
+end;
+
 function TConfiguration.Load(const lPath: string): Boolean;
 var
   lInitFile: TIniFile;
@@ -147,6 +162,13 @@ begin
         lDevice.Name := lInitFile.ReadString(lSectionName, 'Name', '');
         lDevice.Number := lInitFile.ReadInteger(lSectionName, 'Number', -1);
         lDevice.SystemId := lInitFile.ReadString(lSectionName, 'SystemId', '');
+
+        lDevice.CatchAll := lInitFile.ReadBool(lSectionName, 'CatchAll', True);
+        if not lDevice.CatchAll then
+        begin
+          var lCatchListStr: string := lInitFile.ReadString(lSectionName, 'CatchVKCodes', '');
+          VKCodesStringListToList(lDevice.CatchList, lCatchListStr);
+        end;
 
         // validate before add
         if not lDevice.IsValid() then
@@ -201,6 +223,9 @@ begin
         lInitFile.WriteString(lSectionName, 'Name', fConfiguredDeviceList[x].Name);
         lInitFile.WriteInteger(lSectionName, 'Number', fConfiguredDeviceList[x].Number);
         lInitFile.WriteString(lSectionName, 'SystemId', fConfiguredDeviceList[x].SystemId);
+
+        lInitFile.WriteBool(lSectionName, 'CatchAll', fConfiguredDeviceList[x].CatchAll);
+        lInitFile.WriteString(lSectionName, 'CatchVKCodes', ListToVKCodesStringList(fConfiguredDeviceList[x].CatchList));
       end;
       lInitFile.UpdateFile;
     finally
@@ -243,6 +268,31 @@ begin
       Save(fConfigurationFullPath);
   finally
     fLock.Leave;
+  end;
+end;
+
+procedure TConfiguration.VKCodesStringListToList(const pList: TList<Integer>; const lVKCodesStr: string);
+begin
+  if lVKCodesStr = '' then
+  begin
+    pList.Clear;
+    Exit;
+  end;
+
+  var lStringList: TStringList := TStringList.Create;
+  try
+    lStringList.StrictDelimiter := True;
+    lStringList.Delimiter := ',';
+    lStringList.DelimitedText := lVKCodesStr;
+
+    for var x: Integer := 0 to lStringList.Count - 1 do
+    begin
+      var lVKCode: Integer := StrToIntDef(Trim(lStringList[x]), -1);
+      if (lVKCode > -1) then
+        pList.Add(lVKCode);
+    end;
+  finally
+    FreeAndNil(lStringList);
   end;
 end;
 
