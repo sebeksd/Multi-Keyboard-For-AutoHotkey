@@ -20,6 +20,8 @@ type
     LabelProduct: TLabel;
     LabelVersion: TLabel;
     MemoInfo: TMemo;
+    N2: TMenuItem;
+    PUMOpenConfigLocation: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure TrayIconDblClick(Sender: TObject);
     procedure PUMExitClick(Sender: TObject);
@@ -27,6 +29,7 @@ type
     procedure PUMAboutClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormDestroy(Sender: TObject);
+    procedure PUMOpenConfigLocationClick(Sender: TObject);
   private
     { Private declarations }
     procedure OnWmInputMessage(var Message: TMessage); message WM_INPUT;
@@ -42,7 +45,8 @@ var
 implementation
 
 uses
-  VK_Codes, Devices, Configuration, ConfigureDevices_Wnd, StrUtils, KeyStroke;
+  VK_Codes, Devices, Configuration, ConfigureDevices_Wnd, StrUtils, KeyStroke,
+  ShellAPI;
 
 {$R *.dfm}
 
@@ -115,6 +119,11 @@ end;
 procedure TFormMain.PUMExitClick(Sender: TObject);
 begin
   Application.Terminate;
+end;
+
+procedure TFormMain.PUMOpenConfigLocationClick(Sender: TObject);
+begin
+  ShellExecute(Application.Handle, 'open', 'explorer.exe', PChar(Format('/select,"%s"', [gConfiguration.ConfigurationFullPath])), nil, SW_NORMAL);
 end;
 
 procedure TFormMain.TrayIconDblClick(Sender: TObject);

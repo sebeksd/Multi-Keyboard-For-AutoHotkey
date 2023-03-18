@@ -9,7 +9,7 @@ uses
 
 const
   gcConfigurationDir = 'MultiKeyboardForAutoHotkey\';
-  gcConfigurationPath = gcConfigurationDir + 'Configuration.ini';
+  gcConfigurationFileName = 'Configuration.ini';
 
 type
   TConfiguration = class
@@ -31,7 +31,7 @@ type
       procedure VKCodesStringListToList(const pList: TList<Integer>; const lVKCodesStr: string);
       function ListToVKCodesStringList(const lList: TList<Integer>): string;
 
-    protected // unsafe, require Lock
+    protected
       function Load(const lPath: string): Boolean;
       function Save(const lPath: string): Boolean;
 
@@ -44,6 +44,9 @@ type
       procedure CopyEnabledUserDevices(const lDeviceList: TDeviceList);
 
       property IsChanged: Boolean read GetIsChanged;
+
+      property ConfigurationDirectory: string read fConfigurationDirPath;
+      property ConfigurationFullPath: string read fConfigurationFullPath;
   end;
 
 var
@@ -88,8 +91,8 @@ begin
   fConfiguredDeviceList := TDeviceList.Create(TDeviceComparer.Create);
 
   // get AppData\Local\ + own dir patch
-  fConfigurationDirPath := GetAppDataLocalPath();
-  fConfigurationFullPath := fConfigurationDirPath + gcConfigurationPath;
+  fConfigurationDirPath := GetAppDataLocalPath() + gcConfigurationDir;
+  fConfigurationFullPath := fConfigurationDirPath + gcConfigurationFileName;
 
   if not Load(fConfigurationFullPath) then
     SetDefaults();
@@ -97,7 +100,9 @@ end;
 
 destructor TConfiguration.Destroy;
 begin
-  Save(fConfigurationFullPath);
+  if IsChanged then
+    Save(fConfigurationFullPath);
+
   FreeAndNil(fConfiguredDeviceList);
   FreeAndNil(fLock);
 
@@ -236,6 +241,8 @@ begin
     // Delete old config file and replace it with new one
     System.SysUtils.DeleteFile(lPath);
     Result := System.SysUtils.RenameFile(lPath + '.tmp', lPath);
+
+    fIsChanged := False;
   except
     Result := False;
   end;

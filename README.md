@@ -26,6 +26,7 @@ After launching, app will show in Windows tray, from there you can open configur
 Create your own script by using example script "AutoHotkey_example.ahk" as a base.
 
 #### Settings location ####
+In tray menu there is an option called "Open config location" that will open directory from where Config file is read.
 Settings file is located in local user appdata folder:
 "C:\Users\\[User]\AppData\Local\MultiKeyboardForAutoHotkey\Configuration.ini"
 
@@ -45,7 +46,6 @@ CatchAll=0
 CatchVKCodes=96,97,98,99,100,101,102,103,104,105
 
 ## Building from source ##
-
 To build this app you need Delphi IDE, it should work on most of Delphi versions (XE+), it doesn't require any external components or tools. I'm using Delphi 10.4 community edition (which is free).
 Additionally, installer is made using NSIS (Nullsoft Scriptable Install System Files) so to make installer package you need to have NSIS tool.
 
@@ -54,11 +54,9 @@ Scripts:
 - PreparePackage.bat - script to copy required files for installer and also create Portable archive (you need to build before using this script)
 
 ## Issues and Features requests ##
-
 You can report an issue or make feature request through Issues tab on Github
 
 ## Contribution guidelines ##
-
 Make a fork of this repository, make your changes then create pull request
 
 ## License and Disclaimer ##

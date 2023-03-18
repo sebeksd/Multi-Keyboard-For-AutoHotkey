@@ -3513,6 +3513,13 @@ object FormMain: TFormMain
     object N1: TMenuItem
       Caption = '-'
     end
+    object PUMOpenConfigLocation: TMenuItem
+      Caption = 'Open config location'
+      OnClick = PUMOpenConfigLocationClick
+    end
+    object N2: TMenuItem
+      Caption = '-'
+    end
     object PUMExit: TMenuItem
       Caption = 'Exit'
       OnClick = PUMExitClick

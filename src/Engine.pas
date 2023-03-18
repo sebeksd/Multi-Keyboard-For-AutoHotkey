@@ -269,7 +269,7 @@ begin
   lLParam := lLParam or (IfThen(lKeyStroke.Device.State.Shift = kdDown, 1, 0) shl 15); // bit 16 - Shift
 
   PostMessage(fAutoHotkeyHandle, WM_UNIQUE_KEYBOARD_EVENT, lWParam, lLParam);
-  SendMessage(fMainWindowHandle, WM_UNIQUE_KEYBOARD_EVENT, lWParam, lLParam); // TODO REMOVE
+  //SendMessage(fMainWindowHandle, WM_UNIQUE_KEYBOARD_EVENT, lWParam, lLParam); // TODO REMOVE
 end;
 
 procedure TEngine.OnHookMessage(var Message: TMessage);
