@@ -45,10 +45,10 @@ begin
   Result.Device := nil;  // unknown yet
   Result.VKeyCode := Byte(wParam);
 
-  if IsBitSet(lParam, 31) then
-    Result.Direction := kdUp
-  else
-    Result.Direction := kdDown;
+//  if IsBitSet(lParam, 31) then
+    Result.Direction := kdUp ;
+//  else
+//    Result.Direction := kdDown;
 
   if not IsBitSet(lParam, 30) then
     Result.PreviousKeyState := kdUp

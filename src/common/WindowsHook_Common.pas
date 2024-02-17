@@ -9,6 +9,7 @@ uses
 
 const
   WM_HOOK_LIB_EVENT = WM_USER + 300;
+  WM_HOOK_LIB_LL_EVENT = WM_USER + 301;
   HOOK_MEMORY_NAME = 'MKFAH_SharedMem';
 
 type

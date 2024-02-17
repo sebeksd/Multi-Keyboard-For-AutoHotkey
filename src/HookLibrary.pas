@@ -44,9 +44,18 @@ begin
     Exit;
 
   fDllHandle := LoadLibrary(HookLib);
+//  if fDllHandle <> INVALID_HANDLE_VALUE then
+//  begin
+//    fSMPtr^.HookKbd := SetWindowsHookEx(WH_KEYBOARD, GetProcAddress(fDllHandle, 'WindowsEventHook'), fDllHandle, 0);
+//    if (fSMPtr^.HookKbd = 0) then
+//      FreeHook  // free if something was not ok
+//    else
+//      Result := True;
+//  end;
+
   if fDllHandle <> INVALID_HANDLE_VALUE then
   begin
-    fSMPtr^.HookKbd := SetWindowsHookEx(WH_KEYBOARD, GetProcAddress(fDllHandle, 'WindowsEventHook'), fDllHandle, 0);
+    fSMPtr^.HookKbd := SetWindowsHookEx(WH_KEYBOARD_LL, GetProcAddress(fDllHandle, 'LowLevelKeyboardProc'), fDllHandle, 0);
     if (fSMPtr^.HookKbd = 0) then
       FreeHook  // free if something was not ok
     else

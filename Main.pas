@@ -34,6 +34,7 @@ type
     { Private declarations }
     procedure OnWmInputMessage(var Message: TMessage); message WM_INPUT;
     procedure OnHookMessage(var Message: TMessage); message WM_HOOK_LIB_EVENT;
+    procedure OnLLHookMessage(var Message: TMessage); message WM_HOOK_LIB_LL_EVENT;
 
   public
     { Public declarations }
@@ -99,6 +100,13 @@ end;
 procedure TFormMain.OnHookMessage(var Message: TMessage);
 begin
   gEngine.OnHookMessage(Message);
+end;
+
+procedure TFormMain.OnLLHookMessage(var Message: TMessage);
+begin
+//ShowMessage('L: ' + IntToStR(Message.LParam) + ' WL: ' + IntToStR(Message.WParam));
+
+  gEngine.OnLLHookMessage(Message);
 end;
 
 procedure TFormMain.OnWmInputMessage(var Message: TMessage);

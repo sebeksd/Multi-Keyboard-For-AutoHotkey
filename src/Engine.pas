@@ -61,6 +61,7 @@ type
       procedure Stop();
 
       procedure OnHookMessage(var Message: TMessage);
+      procedure OnLLHookMessage(var Message: TMessage);
       procedure OnRawInmputMessage(var Message: TMessage);
 
       property MainWindowHandle: THandle write SetMainWindowHandle;
@@ -287,6 +288,46 @@ begin
     if FindDeviceInRawInputLog(lKS) then
     begin
       lKS.Device := GetDeviceByHandle(lKS.DeviceHandle);
+
+      if Assigned(lKS.Device) then
+      begin
+        // update current state of special control keys for this device
+        UpdateControlKeyStateForDevice(lKS.Device, lKS);
+
+        if lKS.IsOnCatchList() then
+        begin
+          // send keystroke to AutoHotkey
+          KeyStrokeToAutoHotkey(lKS);
+
+          lDoBlock := True;
+        end;
+      end;
+    end;
+  finally
+    fLock.Leave;
+  end;
+
+  if lDoBlock then
+    Message.Result := -1
+  else
+    Message.Result := 0;
+end;
+
+procedure TEngine.OnLLHookMessage(var Message: TMessage);
+var
+  lKS: TKeyStroke;
+  lDoBlock: Boolean;
+begin
+  lDoBlock := False;
+
+  // hook message has no device ID so we need RawInput for that
+  fLock.Enter;
+  try
+    lKS := ConvertHookMessageToKeyStroke(Message.WParam, Message.LParam);
+
+    if FindDeviceInRawInputLog(lKS) then
+    begin
+     lKS.Device := GetDeviceByHandle(lKS.DeviceHandle);
 
       if Assigned(lKS.Device) then
       begin

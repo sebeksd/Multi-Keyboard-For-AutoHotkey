@@ -19,6 +19,7 @@ uses
 
 {$WARN SYMBOL_PLATFORM OFF}
 exports WindowsEventHook index 1;
+exports LowLevelKeyboardProc index 2;
 {$WARN SYMBOL_PLATFORM ON}
 
 begin
