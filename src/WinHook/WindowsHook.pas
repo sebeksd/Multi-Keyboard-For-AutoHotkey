@@ -30,7 +30,7 @@ begin
     Result := CallNextHookEx(gSharedPtr^.HookKbd, Code, wParam, lParam)
   else
   begin
-    if SendMessage(gSharedPtr^.MainWinHandle, WM_HOOK_LIB_EVENT, wParam , lParam) = -1 then
+    if SendMessage(gSharedPtr^.MainWinHandle, WM_HOOK_LIB_EVENT, wParam, lParam) = -1 then
       Result := 1
     else
       Result := CallNextHookEx(gSharedPtr^.HookKbd, Code, wParam, lParam);

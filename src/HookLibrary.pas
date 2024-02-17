@@ -48,7 +48,7 @@ begin
   begin
     fSMPtr^.HookKbd := SetWindowsHookEx(WH_KEYBOARD, GetProcAddress(fDllHandle, 'WindowsEventHook'), fDllHandle, 0);
     if (fSMPtr^.HookKbd = 0) then
-      FreeHook  // free is something was not ok
+      FreeHook  // free if something was not ok
     else
       Result := True;
   end;

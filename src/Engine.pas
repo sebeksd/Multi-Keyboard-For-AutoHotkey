@@ -162,7 +162,7 @@ begin
 
   while not Terminated do
   begin
-    // check if user changed configuration, if yest then reload device list
+    // check if user changed configuration, if yes then reload device list
     if RefreshConnectedDevices() or gConfiguration.IsChanged then
       UpdateDevicesFromConfiguration();
 
