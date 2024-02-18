@@ -72,7 +72,12 @@ begin
     [LongRec(FixedPtr.dwFileVersionMS).Hi,  //major
      LongRec(FixedPtr.dwFileVersionMS).Lo,  //minor
      LongRec(FixedPtr.dwFileVersionLS).Hi,  //release
-     LongRec(FixedPtr.dwFileVersionLS).Lo]) //build
+     LongRec(FixedPtr.dwFileVersionLS).Lo]); //build
+
+  if not gConfiguration.ExperimentalLLHook then
+    Result := Result + ' Norm.'
+  else
+    Result := Result + ' Exp.';
 end;
 
 procedure TFormMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);

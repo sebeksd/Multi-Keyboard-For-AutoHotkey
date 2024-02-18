@@ -24,6 +24,7 @@ type
       // in configuration file
       fStartOnAppLaunch: Boolean;
       fConfiguredDeviceList: TDeviceList;
+      fExperimentalLLHook: Boolean;
 
       procedure SetDefaults;
       function GetIsChanged: Boolean;
@@ -47,6 +48,8 @@ type
 
       property ConfigurationDirectory: string read fConfigurationDirPath;
       property ConfigurationFullPath: string read fConfigurationFullPath;
+
+      property ExperimentalLLHook: Boolean read fExperimentalLLHook;
   end;
 
 var
@@ -156,6 +159,7 @@ begin
       // general section
       fStartOnAppLaunch := lInitFile.ReadBool('General', 'StartOnAppLaunch', True);
       lDeviceCount := lInitFile.ReadInteger('General', 'DeviceCount', 0);
+      fExperimentalLLHook := lInitFile.ReadBool('General', 'ExperimentalLLHook', False);
 
       // devices section
       for x := 0 to lDeviceCount - 1 do
@@ -218,6 +222,7 @@ begin
       // general section
       lInitFile.WriteBool('General', 'StartOnAppLaunch', fStartOnAppLaunch);
       lInitFile.WriteInteger('General', 'DeviceCount', fConfiguredDeviceList.Count);
+      lInitFile.WriteBool('General', 'ExperimentalLLHook', fExperimentalLLHook);
 
       // devices section
       for x := 0 to fConfiguredDeviceList.Count - 1 do
@@ -251,6 +256,7 @@ end;
 procedure TConfiguration.SetDefaults;
 begin
   fStartOnAppLaunch := True;
+  fExperimentalLLHook := False;
 end;
 
 procedure TConfiguration.UpdateDeviceList(const lDeviceList: TDeviceList; const lSave: Boolean);

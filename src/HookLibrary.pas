@@ -30,7 +30,7 @@ type
 implementation
 
 uses
-  VK_Codes, Main;
+  VK_Codes, Main, Configuration;
 
 const
   HookLib = 'WinHook.dll';
@@ -38,24 +38,24 @@ const
 { THookLibrary }
 
 function THookLibrary.SetHook: Boolean;
+
+  procedure LocalRegisterHook();
+  begin
+    if not gConfiguration.ExperimentalLLHook then
+      fSMPtr^.HookKbd := SetWindowsHookEx(WH_KEYBOARD, GetProcAddress(fDllHandle, 'WindowsEventHook'), fDllHandle, 0)
+    else
+      fSMPtr^.HookKbd := SetWindowsHookEx(WH_KEYBOARD_LL, GetProcAddress(fDllHandle, 'LowLevelKeyboardProc'), fDllHandle, 0);
+  end;
+
 begin
   Result := False;
   if not Assigned(fSMPtr) then
     Exit;
 
   fDllHandle := LoadLibrary(HookLib);
-//  if fDllHandle <> INVALID_HANDLE_VALUE then
-//  begin
-//    fSMPtr^.HookKbd := SetWindowsHookEx(WH_KEYBOARD, GetProcAddress(fDllHandle, 'WindowsEventHook'), fDllHandle, 0);
-//    if (fSMPtr^.HookKbd = 0) then
-//      FreeHook  // free if something was not ok
-//    else
-//      Result := True;
-//  end;
-
   if fDllHandle <> INVALID_HANDLE_VALUE then
   begin
-    fSMPtr^.HookKbd := SetWindowsHookEx(WH_KEYBOARD_LL, GetProcAddress(fDllHandle, 'LowLevelKeyboardProc'), fDllHandle, 0);
+    LocalRegisterHook();
     if (fSMPtr^.HookKbd = 0) then
       FreeHook  // free if something was not ok
     else
