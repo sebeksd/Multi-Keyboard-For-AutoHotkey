@@ -31,24 +31,25 @@ type
   end;
 
   function ConvertHookMessageToKeyStroke(wParam: WPARAM; lParam: LPARAM): TKeyStroke;
+  function ConvertLLHookMessageToKeyStroke(wParam: WPARAM; lParam: LPARAM): TKeyStroke;
 
 implementation
 
-function ConvertHookMessageToKeyStroke(wParam: WPARAM; lParam: LPARAM): TKeyStroke;
-  function IsBitSet(const lValue, lIndex: NativeInt): Boolean;
-  begin
-    Result := lValue and (1 shl lIndex) <> 0;
-  end;
+function IsBitSet(const lValue, lIndex: NativeInt): Boolean;
+begin
+  Result := lValue and (1 shl lIndex) <> 0;
+end;
 
+function ConvertHookMessageToKeyStroke(wParam: WPARAM; lParam: LPARAM): TKeyStroke;
 begin
   Result.DeviceHandle := 0;  // unknown yet
   Result.Device := nil;  // unknown yet
   Result.VKeyCode := Byte(wParam);
 
-//  if IsBitSet(lParam, 31) then
-    Result.Direction := kdUp ;
-//  else
-//    Result.Direction := kdDown;
+  if IsBitSet(lParam, 31) then
+    Result.Direction := kdUp
+  else
+    Result.Direction := kdDown;
 
   if not IsBitSet(lParam, 30) then
     Result.PreviousKeyState := kdUp
@@ -61,6 +62,30 @@ begin
     Result.AltState := kdDown;
 
   if IsBitSet(lParam, 24) then
+    Result.IsExtendedKey := True
+  else
+    Result.IsExtendedKey := False;
+end;
+
+function ConvertLLHookMessageToKeyStroke(wParam: WPARAM; lParam: LPARAM): TKeyStroke;
+begin
+  Result.DeviceHandle := 0;  // unknown yet
+  Result.Device := nil;  // unknown yet
+  Result.VKeyCode := Byte(wParam);
+
+  if IsBitSet(lParam, 7) then
+    Result.Direction := kdUp
+  else
+    Result.Direction := kdDown;
+
+  Result.PreviousKeyState := kdUnknown;
+
+  if not IsBitSet(lParam, 5) then
+    Result.AltState := kdUp
+  else
+    Result.AltState := kdDown;
+
+  if IsBitSet(lParam, 0) then
     Result.IsExtendedKey := True
   else
     Result.IsExtendedKey := False;

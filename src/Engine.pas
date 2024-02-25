@@ -323,11 +323,11 @@ begin
   // hook message has no device ID so we need RawInput for that
   fLock.Enter;
   try
-    lKS := ConvertHookMessageToKeyStroke(Message.WParam, Message.LParam);
+    lKS := ConvertLLHookMessageToKeyStroke(Message.WParam, Message.LParam);
 
     if FindDeviceInRawInputLog(lKS) then
     begin
-     lKS.Device := GetDeviceByHandle(lKS.DeviceHandle);
+      lKS.Device := GetDeviceByHandle(lKS.DeviceHandle);
 
       if Assigned(lKS.Device) then
       begin
