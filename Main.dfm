@@ -11,11 +11,9 @@ object FormMain: TFormMain
   Font.Height = -16
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  PixelsPerInch = 96
   TextHeight = 19
   object LabelProduct: TLabel
     Left = 8
@@ -3524,5 +3522,12 @@ object FormMain: TFormMain
       Caption = 'Exit'
       OnClick = PUMExitClick
     end
+  end
+  object IdTCPServer1: TIdTCPServer
+    Bindings = <>
+    DefaultPort = 0
+    OnExecute = IdTCPServer1Execute
+    Left = 152
+    Top = 232
   end
 end

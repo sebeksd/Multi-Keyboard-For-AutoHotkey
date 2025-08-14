@@ -43,6 +43,8 @@ type
       procedure FillDevicesFromConfiguration(const lDeviceList: TDeviceList);
       procedure CopyEnabledUserDevices(const lDeviceList: TDeviceList);
 
+      procedure UpdateLiveCatchList(const ADeviceNumber: Integer; const ACatchListStr: string);
+
       property IsChanged: Boolean read GetIsChanged;
 
       property ConfigurationDirectory: string read fConfigurationDirPath;
@@ -68,6 +70,9 @@ begin
 end;
 
 { TConfiguration }
+
+
+
 
 procedure TConfiguration.CopyEnabledUserDevices(const lDeviceList: TDeviceList);
 begin
@@ -119,6 +124,38 @@ begin
   end;
 end;
 
+// In Configuration.pas
+// REPLACE the entire procedure
+
+procedure TConfiguration.UpdateLiveCatchList(const ADeviceNumber: Integer; const ACatchListStr: string);
+var
+  lDevice: TDevice;
+  lDebugMsg: string; // Declare the debug variable
+begin
+  fLock.Enter;
+  try
+    for lDevice in fConfiguredDeviceList do
+    begin
+      if lDevice.Number = ADeviceNumber then
+      begin
+        { --- DEBUG MESSAGE 4: Confirm the data is being written to the device object --- }
+        lDebugMsg := Format('DEBUG: UpdateLiveCatchList is updating Device %d. Old List Count: %d. New List String: "%s"', [lDevice.Number, lDevice.CatchList.Count, ACatchListStr]);
+        OutputDebugString(PChar(lDebugMsg));
+        
+        VKCodesStringListToList(lDevice.CatchList, ACatchListStr);
+        
+
+        lDebugMsg := Format('DEBUG: UpdateLiveCatchList FINISHED for Device %d. New List Count: %d.', [lDevice.Number, lDevice.CatchList.Count]);
+        OutputDebugString(PChar(lDebugMsg));
+        
+        Break;
+      end;
+    end;
+  finally
+    fLock.Leave;
+  end;
+end;
+
 function TConfiguration.GetIsChanged: Boolean;
 begin
   fLock.Enter;
@@ -132,6 +169,7 @@ end;
 function TConfiguration.ListToVKCodesStringList(const lList: TList<Integer>): string;
 begin
   Result := '';
+  
   for var x: Integer := 0 to lList.Count - 1 do
   begin
     if x > 0 then
@@ -172,7 +210,9 @@ begin
         if not lDevice.CatchAll then
         begin
           var lCatchListStr: string := lInitFile.ReadString(lSectionName, 'CatchVKCodes', '');
+          
           VKCodesStringListToList(lDevice.CatchList, lCatchListStr);
+         
         end;
 
         // validate before add
@@ -280,14 +320,12 @@ end;
 
 procedure TConfiguration.VKCodesStringListToList(const pList: TList<Integer>; const lVKCodesStr: string);
 begin
-  if lVKCodesStr = '' then
-  begin
-    pList.Clear;
-    Exit;
-  end;
+
+  pList.Clear;
 
   var lStringList: TStringList := TStringList.Create;
   try
+  
     lStringList.StrictDelimiter := True;
     lStringList.Delimiter := ',';
     lStringList.DelimitedText := lVKCodesStr;

@@ -235,6 +235,7 @@ begin
     fNumber := lDevice.Number;
 
     fCatchAll := lDevice.fCatchAll;
+    if
     for var x: Integer := 0 to lDevice.fCatchList.Count - 1 do
       fCatchList.Add(lDevice.fCatchList[x]);
 
@@ -298,6 +299,8 @@ end;
 
 function TDevice.IsVKCodeOnCatchList(const lVKCode: Byte): Boolean;
 begin
+  if fCatchList.Count = 0 then
+    Exit(fCatchAll);
   for var x: Integer := 0 to fCatchList.Count - 1 do
   begin
     if lVKCode = fCatchList[x] then
