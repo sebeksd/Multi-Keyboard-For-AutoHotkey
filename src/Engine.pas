@@ -74,7 +74,7 @@ var
 implementation
 
 uses
-  Configuration, System.Math, VK_Codes;
+  Configuration, System.Math, VK_Codes, WindowsHook_Common;
 
 { TEngine }
 
@@ -417,6 +417,13 @@ begin
 
     if fMainWindowHandle = INVALID_HANDLE_VALUE then
       Exit;
+
+    // This allows messages to be received from lower-privilege processes,
+    // which is necessary for the hook to work when the main application is run as administrator.
+    if Win32MajorVersion >= 6 then // since Vista
+    begin
+      ChangeWindowMessageFilter(WM_HOOK_LIB_EVENT, 1); // 1 = MSGFLT_ADD
+    end;
 
     fHookLibrary := THookLibrary.Create(lHandle);
   finally
