@@ -6,7 +6,7 @@ interface
 
 uses
   Winapi.Messages, System.Classes, System.SyncObjs, KeyStroke, System.SysUtils,
-  RawInput_API, Devices, Winapi.Windows, HookLibrary, System.JSON;
+  RawInput_API, Devices, Winapi.Windows, HookLibrary;
 
 const
   WM_UNIQUE_KEYBOARD_EVENT = WM_USER + 301;
@@ -62,8 +62,6 @@ type
 
       procedure OnHookMessage(var Message: TMessage);
       procedure OnRawInmputMessage(var Message: TMessage);
-
-      procedure UpdateCatchListMessage(const data: string);
 
       property MainWindowHandle: THandle write SetMainWindowHandle;
   end;
@@ -278,8 +276,6 @@ procedure TEngine.OnHookMessage(var Message: TMessage);
 var
   lKS: TKeyStroke;
   lDoBlock: Boolean;
-  lIsOnList: Boolean; // <-- THIS IS THE FIX. The variable is now declared.
-  lDebugMsg: string;  // <-- THIS IS THE FIX. The variable is now declared.
 begin
   lDoBlock := False;
 
@@ -291,22 +287,11 @@ begin
     if FindDeviceInRawInputLog(lKS) then
     begin
       lKS.Device := GetDeviceByHandle(lKS.DeviceHandle);
-    
-      // OutputDebugString(PChar('----lKS Length : ' + lKS.Device.CatchList.Count.ToString));
 
       if Assigned(lKS.Device) then
       begin
         // update current state of special control keys for this device
         UpdateControlKeyStateForDevice(lKS.Device, lKS);
-        
-         { --- DEBUG MESSAGE 2: Check the result of the interception logic --- }
-
-
-        lIsOnList := lKS.IsOnCatchList(); 
-
-        lDebugMsg := Format('DEBUG: Key Press VK=%d. IsOnCatchList returned: %s', [lKS.VKeyCode, BoolToStr(lIsOnList, True)]);
-        OutputDebugString(PChar(lDebugMsg));
-
 
         if lKS.IsOnCatchList() then
         begin
@@ -362,47 +347,6 @@ begin
   end;
 
   Message.Result := 0;
-end;
-
-
-// In Engine.pas
-// REPLACE this entire procedure
-
-procedure TEngine.UpdateCatchListMessage(const data: string);
-var
-  lDeviceNum: Integer;
-  lCatchStr: string;
-  lDebugMsg: string; // <-- THIS IS THE FIX. The variable is now declared.
-
-  JSONObject: TJSONObject;
-  DeviceNumber: Integer;
-  CatchVKCodes: string;
-begin
-
-  JSONObject := TJSONObject(TJSONObject.ParseJSONValue(data));
-
-  DeviceNumber := JSONObject.GetValue<Integer>('DeviceNumber');
-  CatchVKCodes := JSONObject.GetValue<string>('CatchVKCodes');
-
-  lDeviceNum := DeviceNumber;
-
-  if CatchVKCodes <> '' then
-  begin
-   // lData := PCOPYDATASTRUCT(Message.LParam);
-   // if lData^.dwData = 1 then
-   // begin
-    //  lRemoteString := PChar(lData^.lpData);
-      lCatchStr := CatchVKCodes;
-      
-      { --- DEBUG MESSAGE 1: Confirm the command was received --- }
-      lDebugMsg := Format('DEBUG: Received WM_UPDATE_CATCH_LIST for Device %d. New List: "%s"', [lDeviceNum, lCatchStr]);
-      OutputDebugString(PChar(lDebugMsg));
-      
-      gConfiguration.UpdateLiveCatchList(lDeviceNum, lCatchStr);
-
-      UpdateDevicesFromConfiguration();
-   // end;
-  end;
 end;
 
 procedure TEngine.SetMainWindowHandle(const lHandle: THandle);

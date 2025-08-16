@@ -5,7 +5,7 @@ unit KeyStroke;
 interface
 
 uses
-  Classes, SysUtils, Devices, Winapi.Windows, VK_Codes, Winapi.Messages;
+  Classes, SysUtils, Devices, Winapi.Windows, VK_Codes;
 
 type
   TKeyStrokePtr = ^TKeyStroke;
@@ -73,23 +73,12 @@ begin
   Result := (VKeyCode = lKeyStroke.VKeyCode) and (Direction = lKeyStroke.Direction);
 end;
 
-// In KeyStroke.pas
-// REPLACE the entire IsOnCatchList function with this one
-
 function TKeyStroke.IsOnCatchList: Boolean;
-var
-  lDebugMsg: string; // <-- THIS IS THE FIX. The variable is now declared.
 begin
   if not Assigned(Device) then
     Exit(False);
 
-  { --- DEBUG MESSAGE 3: See what the current catch list contains --- }
-  lDebugMsg := Format('DEBUG: IsOnCatchList checking VK=%d against Device %d list.', [VKeyCode, Device.Number]);
-  OutputDebugString(PChar(lDebugMsg));
-  
-  OutputDebugString(PChar('----CatchList Length : ' + Device.CatchList[0].ToString + '----'));
-  
-  Result := Device.IsVKCodeOnCatchList(VKeyCode);
+  Result := Device.CatchAll or Device.IsVKCodeOnCatchList(VKeyCode);
 end;
 
 end.

@@ -7,12 +7,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,
-  HookLibrary, WindowsHook_Common, Engine, Vcl.Menus, IdBaseComponent,
-  IdComponent, IdCustomTCPServer, IdTCPServer, IdContext;
-
- const
-    WM_TEST_MESSAGE = WM_USER + 400;
-    WM_AHK_REGISTER = WM_USER + 500;
+  HookLibrary, WindowsHook_Common, Engine, Vcl.Menus;
 
 type
   TFormMain = class(TForm)
@@ -27,12 +22,7 @@ type
     MemoInfo: TMemo;
     N2: TMenuItem;
     PUMOpenConfigLocation: TMenuItem;
-    IdTCPServer1: TIdTCPServer;
-
     procedure FormCreate(Sender: TObject);
-    procedure IdTCPServer1Execute(AContext: TIdContext);
-
-
     procedure TrayIconDblClick(Sender: TObject);
     procedure PUMExitClick(Sender: TObject);
     procedure PUMConfigClick(Sender: TObject);
@@ -45,10 +35,8 @@ type
     procedure OnWmInputMessage(var Message: TMessage); message WM_INPUT;
     procedure OnHookMessage(var Message: TMessage); message WM_HOOK_LIB_EVENT;
 
-
   public
     { Public declarations }
-
   end;
 
 var
@@ -94,37 +82,13 @@ end;
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
-
-
   gEngine.MainWindowHandle := Self.Handle;
 
   LabelVersion.Caption := 'Version: ' + GetAppVersionStr;
 
-   IdTCPServer1.DefaultPort := 9001;
-   IdTCPServer1.Active := True;
-
   if Assigned(gEngine) then
     gEngine.Start;
-
-
 end;
-
-// --- ADD THIS ENTIRE PROCEDURE ---
-procedure TFormMain.IdTCPServer1Execute(AContext: TIdContext);
-var
-  ReceivedText: string;
-begin
-  // Read one line of text from the connection.
-  ReceivedText := AContext.Connection.IOHandler.ReadLn();
-
-  // IMPORTANT: You cannot update UI from this event directly.
-  // Use TThread.Queue to safely pass the text to the main UI thread.
-  TThread.Queue(nil, procedure
-  begin
-     gEngine.UpdateCatchListMessage(ReceivedText);
-  end);
-end;
-
 
 procedure TFormMain.FormDestroy(Sender: TObject);
 begin
