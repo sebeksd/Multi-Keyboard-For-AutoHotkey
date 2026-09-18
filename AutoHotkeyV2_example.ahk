@@ -19,6 +19,8 @@ return
 MsgFunc(wParam, lParam, msg, hwnd)
 {
   OnUniqueKeyboard(wParam, lParam & 0xFF, (lParam & 0x100) > 0, (lParam & 0x200) > 0, (lParam & 0x400) > 0, (lParam & 0x800) > 0, (lParam & 0x1000) > 0, (lParam & 0x2000) > 0, (lParam & 0x4000) > 0, (lParam & 0x8000) > 0)  	
+
+  return 1
 }
 
 ; KeyboardNumber - configured by you in MultiKB_For_AutoHotkey, this identify keyboard device
